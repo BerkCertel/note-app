@@ -30,10 +30,21 @@ import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 
-const formSchema = z.object({
-  password: z.string().min(6).max(100),
-  confirmPassword: z.string().min(6).max(100),
-});
+const formSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(100, "Password cannot exceed 100 characters"),
+    confirmPassword: z
+      .string()
+      .min(8, "Confirm Password must be at least 8 characters")
+      .max(100, "Confirm Password cannot exceed 100 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function ResetPasswordForm({
   className,

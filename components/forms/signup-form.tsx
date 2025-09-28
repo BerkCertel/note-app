@@ -32,11 +32,24 @@ import { FaGoogle } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 
-const formSchema = z.object({
-  username: z.string().min(2).max(100),
-  email: z.email(),
-  password: z.string().min(8),
-});
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, { message: "Name must be at least 2 characters" })
+      .max(100),
+    email: z.email().nonempty("Email is required"),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: "Confirm Password must be at least 8 characters" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function SignUpForm({
   className,
@@ -50,27 +63,43 @@ export default function SignUpForm({
     defaultValues: {
       email: "",
       password: "",
-      username: "",
+      name: "",
+      confirmPassword: "",
     },
   });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setLoading(true);
-    const { success, message } = await signUp(
-      values.username,
-      values.email,
-      values.password
-    );
-    if (success) {
-      router.push("/login");
-      toast.success(
-        `${message as string}. Please check your email to verify your account.`
+    try {
+      setLoading(true);
+
+      if (values.password !== values.confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+
+      const { success, message } = await signUp(
+        values.name,
+        values.email,
+        values.password
       );
-    } else {
-      toast.error(message as string);
+
+      if (success) {
+        router.push("/login");
+        toast.success(
+          `${
+            message as string
+          }. Please check your email to verify your account.`
+        );
+      } else {
+        toast.error(message as string);
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
+      console.error("SignUp Error:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   const signInWithGoogle = async () => {
@@ -111,12 +140,12 @@ export default function SignUpForm({
                   <div className="grid gap-3">
                     <FormField
                       control={form.control}
-                      name="username"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel>Your Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your Username" {...field} />
+                            <Input placeholder="Your Name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -143,6 +172,23 @@ export default function SignUpForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              placeholder="••••••••"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
                             <Input
                               type="password"

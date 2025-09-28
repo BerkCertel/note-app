@@ -20,7 +20,7 @@ export async function sendMail({
   });
 
   await transporter.sendMail({
-    from: `"${process.env.EMAIL_SENDER_NAME}" <${process.env.EMAIL_SENDER_ADDRESS}>`,
+    from: `"NoteForge" <${process.env.EMAIL_SENDER_ADDRESS}>`,
     to,
     subject,
     html,

@@ -1,8 +1,9 @@
 import CallToAction from "@/components/call-to-action";
 import Features from "@/components/features";
-import FooterSection from "@/components/footer";
-import { HeroHeader } from "@/components/header";
+
 import HeroSection from "@/components/hero-section";
+import Footer from "@/components/utils/footer";
+import { HeroHeader } from "@/components/utils/header";
 
 export default function Home() {
   return (
@@ -11,7 +12,7 @@ export default function Home() {
       <HeroSection />
       <Features />
       <CallToAction />
-      <FooterSection />
+      <Footer />
     </main>
   );
 }

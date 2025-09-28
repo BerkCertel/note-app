@@ -34,8 +34,11 @@ import { Badge } from "../ui/badge";
 import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
-  email: z.email(),
-  password: z.string().min(8),
+  email: z.email().nonempty("Email is required"),
+  password: z
+    .string()
+    .nonempty("Password is required")
+    .min(8, "Password must be at least 8 characters"),
 });
 
 export function LoginForm({
