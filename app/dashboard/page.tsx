@@ -7,7 +7,6 @@ import { getNotebooks } from "@/server/notebooks";
 export default async function DashboardPage() {
   const notebooks = await getNotebooks();
 
-  console.log(notebooks);
   return (
     <PageWrapper breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }]}>
       <h1>Notebooks</h1>

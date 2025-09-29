@@ -29,11 +29,13 @@ export const getNotebooks = async () => {
 
     const notebooksByUser = await db.query.notebooks.findMany({
       where: eq(notebooks.userId, userId),
+      with: {
+        notes: true,
+      },
     });
 
     return { success: true, notebooks: notebooksByUser };
-  } catch (e) {
-    console.error("getNotebooks error:", e);
+  } catch {
     return { success: false, message: "Failed to get notebooks" };
   }
 };
