@@ -7,8 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Note } from "@/db/schema";
+import { Notebook } from "@/db/schema";
 import Link from "next/link";
+import { Button } from "./ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,18 +23,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-// import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Button } from "../ui/button";
-
-import { deleteNote } from "@/server/note";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { deleteNotebook } from "@/server/notebooks";
 
 interface NotebookCardProps {
-  note: Note;
+  notebook: Notebook;
 }
 
-export default function NoteCard({ note }: NotebookCardProps) {
+export default function NotebookCard({ notebook }: NotebookCardProps) {
   const router = useRouter();
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,28 +40,29 @@ export default function NoteCard({ note }: NotebookCardProps) {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      const response = await deleteNote(note.id);
+      const response = await deleteNotebook(notebook.id);
 
       if (response.success) {
-        toast.success("Note deleted successfully");
+        toast.success("Notebook deleted successfully");
         router.refresh();
       }
     } catch {
-      toast.error("Failed to delete note");
+      toast.error("Failed to delete notebook");
     } finally {
       setIsDeleting(false);
       setIsOpen(false);
     }
   };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{note.title}</CardTitle>
+        <CardTitle>{notebook.name}</CardTitle>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        <p>{notebook.notes?.length ?? 0} notes</p>
+      </CardContent>
       <CardFooter className="flex justify-end gap-2">
-        <Link href={`/dashboard/notebook/${note.notebookId}/note/${note.id}`}>
+        <Link href={`/dashboard/notebook/${notebook.id}`}>
           <Button variant="outline">View</Button>
         </Link>
 
@@ -82,7 +81,7 @@ export default function NoteCard({ note }: NotebookCardProps) {
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete the
-                note.
+                notebook and all its notes.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

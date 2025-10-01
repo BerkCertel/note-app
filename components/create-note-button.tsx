@@ -1,9 +1,19 @@
 "use client";
 
-import { Button } from "../ui/button";
+import { z } from "zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+
+import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -13,26 +23,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { createNotebook } from "@/server/notebooks";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { createNote } from "@/server/note";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
 });
 
-function CreateNotebookButton() {
+export const CreateNoteButton = ({ notebookId }: { notebookId: string }) => {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -48,43 +49,41 @@ function CreateNotebookButton() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
-      const userId = (await authClient.getSession()).data?.user.id;
 
-      if (!userId) {
-        toast.error("You must be logged in to create a notebook");
-        return;
-      }
-
-      const response = await createNotebook({
-        ...values,
-        userId,
+      const response = await createNote({
+        title: values.name,
+        content: {},
+        notebookId,
       });
+
       if (response.success) {
         form.reset();
-        toast.success("Notebook created successfully");
+        toast.success("Note created successfully");
         router.refresh();
         setIsOpen(false);
       } else {
         toast.error(response.message);
       }
     } catch {
-      toast.error("Failed to create notebook");
+      toast.error("Failed to create note");
     } finally {
       setIsLoading(false);
     }
   }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>+ Create Notebook</Button>
+        <Button className="w-max">Create Note</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create a new notebook</DialogTitle>
+          <DialogTitle>Create Note</DialogTitle>
           <DialogDescription>
-            Enter the name of the new notebook you want to create.
+            Create a new note to store your notes.
           </DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -94,9 +93,8 @@ function CreateNotebookButton() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter notebook name" {...field} />
+                    <Input placeholder="My Note" {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -113,6 +111,4 @@ function CreateNotebookButton() {
       </DialogContent>
     </Dialog>
   );
-}
-
-export default CreateNotebookButton;
+};
