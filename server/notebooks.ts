@@ -5,8 +5,17 @@ import { InsertNotebook, notebooks } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
+// import { notebookSchema } from "./notebookValidation";
 
 export const createNotebook = async (values: InsertNotebook) => {
+  // const result = notebookSchema.safeParse(values);
+
+  // if (!result.success) {
+  //   // İlk hatanın mesajını al (frontend toast için ideal)
+  //   const firstErrorMessage = result.error.issues[0].message;
+  //   return { success: false, message: firstErrorMessage };
+  // }
+
   try {
     await db.insert(notebooks).values(values);
     return { success: true, message: "Notebook created successfully" };

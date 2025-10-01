@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { Notebook } from "lucide-react";
+import CreateNotebookButton from "./CreateNotebookButton";
 
 export function NoNotebooks() {
   return (
@@ -13,7 +13,7 @@ export function NoNotebooks() {
       <p className="text-sm text-muted-foreground mb-6 text-center">
         You don`t have any notebooks yet. Start by creating your first notebook!
       </p>
-      <Button variant="outline">+ New Notebook</Button>
+      <CreateNotebookButton />
     </div>
   );
 }
